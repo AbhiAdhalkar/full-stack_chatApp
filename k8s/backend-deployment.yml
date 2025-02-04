@@ -1,0 +1,47 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: backend-deployment 
+  namespace: chat-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      name: backend-pods
+      namespace: chat-app
+      labels:
+        app: backend
+    spec:
+      containers:
+      - image: abhi89566/chatapp-backend:latest
+        name: chatapp-backend
+        ports:
+        - containerPort: 5001
+        env:
+        - name: NODE_ENV
+          value: production
+        - name: DB_HOST
+          value: mysql
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_NAME
+          value: "chatapp_db"
+        - name: DB_USER
+          value: "chatapp_user"
+        - name: MYSQL_URI
+          value: "mysql://chatapp_user:root@mysql:3306/dbname?authSource=admin"
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: chatapp-secrets
+              key: mysql-password
+        - name: JWT_SECRET
+          valueFrom: 
+            secretKeyRef:
+              name: chatapp-secrets
+              key: jwt
+        - name: PORT
+          value: "5001"
